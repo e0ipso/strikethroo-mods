@@ -24,15 +24,15 @@ const FORBIDDEN = {
   calls: [/^\$\.fs\.write$/, /^\$\.prompt\.submit$/, /^\$\.model\./],
 }
 
-/** Splits `a, b{x=[1,2]}, c` at the commas outside braces and brackets. */
+/** Splits `a, b{x=[1,2]}, c (via d, e)` at the commas outside braces, brackets and parentheses. */
 const splitList = (text: string): string[] => {
   const items: string[] = []
   let depth = 0
   let start = 0
   for (let i = 0; i < text.length; i++) {
     const char = text[i]
-    if (char === '{' || char === '[') depth++
-    else if (char === '}' || char === ']') depth--
+    if (char === '{' || char === '[' || char === '(') depth++
+    else if (char === '}' || char === ']' || char === ')') depth--
     else if (char === ',' && depth === 0) {
       items.push(text.slice(start, i).trim())
       start = i + 1
