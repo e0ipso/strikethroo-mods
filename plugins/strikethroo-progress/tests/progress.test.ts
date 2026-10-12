@@ -118,6 +118,8 @@ describe('register', () => {
     const pane = await $.ui.mount(PANE)
     expect((await pane.find({ type: 'Text', text: '  ✓ 01 Create the users table' }))?.props).toMatchObject({ dimColor: true })
     expect((await pane.find({ type: 'Text', text: '  ✗ 04 Map auth errors · failed' }))?.props).toMatchObject({ color: 'error' })
+    const desktop = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    expect(await desktop.find({ type: 'Text', text: 'Phase 2: API' })).toBeDefined()
   })
 
   test('display "pane" opens the pane and leaves the band alone', { options: { display: 'pane' } }, async ($, on) => {
