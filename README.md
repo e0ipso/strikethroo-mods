@@ -77,6 +77,12 @@ There is no build step. Write only TypeScript that type stripping can remove, wh
 
 CI (`.github/workflows/ci.yml`) installs Claude Code from npm at the tested version and runs all of the above. `claude plugin validate` and `claude plugin test` need no sign-in.
 
+### Commits and releases
+
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/). `npm install` sets up a husky `commit-msg` hook that runs commitlint with `commitlint.config.ts`, and CI lints every commit in a pull request. Besides the conventional rules, the config carries Strikethroo's `no-ai-generated` rule, so a message with a `Co-Authored-By: Claude … <noreply@anthropic.com>` trailer or a "Generated with Claude Code" line is refused.
+
+Each push to `main` runs semantic-release after the checks pass (`.releaserc.json`). `feat` makes a minor release, `fix`, `perf`, `refactor` and `revert` a patch, and a breaking change a major one; `docs`, `test`, `ci`, `build`, `style` and `chore` release nothing. A release writes the new version into every plugin's `plugin.json` (`scripts/set-version.ts`), because Claude Code caches an installed plugin by version and `/plugin update` only fetches a new one. It also updates `CHANGELOG.md`, tags `v<version>`, and creates a GitHub release. Nothing is published to npm.
+
 ## License
 
 MIT, except `types/vendor/claude-code/`, which is Anthropic's. See [LICENSE](LICENSE).

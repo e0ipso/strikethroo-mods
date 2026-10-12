@@ -14,5 +14,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["scripts"]
+  "include": ["scripts", "commitlint.config.ts"]
 }

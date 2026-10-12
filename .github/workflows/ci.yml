@@ -5,8 +5,8 @@ on:
     branches: [main]
   pull_request:
 
-permissions:
-  contents: read
+# Nothing is granted at the workflow level; each job asks for what it needs.
+permissions: {}
 
 env:
   # The version the plugins were tested against; see types/vendor/claude-code/README.md.
@@ -15,15 +15,26 @@ env:
   DISABLE_AUTOUPDATER: '1'
 
 jobs:
+  # Read-only: installs, checks and tests run with a read-only token and no
+  # secrets, so a package script can't reach anything that tags or pushes.
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # commitlint reads the pull request's commits.
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - name: Lint the pull request's commit messages
+        if: github.event_name == 'pull_request'
+        run: npx commitlint --from "${{ github.event.pull_request.base.sha }}" --to "${{ github.event.pull_request.head.sha }}" --verbose
       # claude plugin validate and claude plugin test need no sign-in.
       - run: npm install --global "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
       - run: npm run typecheck
@@ -31,3 +42,38 @@ jobs:
       - run: npm run validate
       - run: npm test
       - run: npm run check-capabilities
+
+  # Runs only on main, after check passed on the same commit, with what
+  # semantic-release needs:
+  #   contents: write        release commit, tag and GitHub release
+  #   issues/pull-requests   @semantic-release/github success and failure comments
+  # Nothing is published to npm (.releaserc.json sets npmPublish false).
+  release:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          # semantic-release pushes with the GITHUB_TOKEN given to its own step.
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          # @semantic-release/changelog and @semantic-release/git need Node 22.22.2 or later.
+          node-version: 'lts/*'
+          cache: npm
+      # Skips the root prepare script (husky); nothing here needs it.
+      - run: npm ci --ignore-scripts
+      # Bumps every plugin.json, updates CHANGELOG.md, commits with [skip ci],
+      # tags v<version> and creates the GitHub release. HUSKY=0 keeps the
+      # commit hook out of the release commit.
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: 0
+        run: npx semantic-release

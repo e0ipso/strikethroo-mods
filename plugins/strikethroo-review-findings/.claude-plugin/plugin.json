@@ -7,5 +7,9 @@
   },
   "license": "MIT",
   "repository": "https://github.com/e0ipso/strikethroo-mods",
-  "keywords": ["strikethroo", "mods", "code-review"]
+  "keywords": [
+    "strikethroo",
+    "mods",
+    "code-review"
+  ]
 }

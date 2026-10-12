@@ -7,14 +7,27 @@
   },
   "license": "MIT",
   "repository": "https://github.com/e0ipso/strikethroo-mods",
-  "keywords": ["strikethroo", "mods", "verification"],
+  "keywords": [
+    "strikethroo",
+    "mods",
+    "verification"
+  ],
   "userConfig": {
     "verify_patterns": {
       "type": "string",
       "title": "Verification commands",
       "description": "Text that marks a Bash command as a test or build run. A command that contains any of these, ignoring case, counts.",
       "multiple": true,
-      "default": ["test", "vitest", "jest", "pytest", "tsc", "build", "lint", "validate"]
+      "default": [
+        "test",
+        "vitest",
+        "jest",
+        "pytest",
+        "tsc",
+        "build",
+        "lint",
+        "validate"
+      ]
     }
   }
 }

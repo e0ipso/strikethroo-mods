@@ -7,13 +7,21 @@
   },
   "license": "MIT",
   "repository": "https://github.com/e0ipso/strikethroo-mods",
-  "keywords": ["strikethroo", "mods", "scope"],
+  "keywords": [
+    "strikethroo",
+    "mods",
+    "scope"
+  ],
   "userConfig": {
     "mode": {
       "type": "string",
       "title": "Warning style",
       "description": "\"toast\" shows a notification for a few seconds; \"notice\" adds a dim line to the transcript, which Claude doesn't read; \"off\" turns the mod off.",
-      "options": ["toast", "notice", "off"],
+      "options": [
+        "toast",
+        "notice",
+        "off"
+      ],
       "default": "toast"
     }
   }

@@ -7,13 +7,22 @@
   },
   "license": "MIT",
   "repository": "https://github.com/e0ipso/strikethroo-mods",
-  "keywords": ["strikethroo", "mods", "progress"],
+  "keywords": [
+    "strikethroo",
+    "mods",
+    "progress"
+  ],
   "userConfig": {
     "display": {
       "type": "string",
       "title": "Display",
       "description": "Where progress shows: \"band\" (one line above the prompt), \"pane\", \"both\", or \"off\". /strikethroo-status works in every mode.",
-      "options": ["band", "pane", "both", "off"],
+      "options": [
+        "band",
+        "pane",
+        "both",
+        "off"
+      ],
       "default": "band"
     },
     "refresh_seconds": {
