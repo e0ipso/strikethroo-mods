@@ -55,5 +55,14 @@
       "$.ui.log",
       "$.ui.toast"
     ]
+  },
+  "strikethroo-claim-check": {
+    "hooks": [
+      "tool.call",
+      "turn.complete"
+    ],
+    "calls": [
+      "$.session.messages"
+    ]
   }
 }

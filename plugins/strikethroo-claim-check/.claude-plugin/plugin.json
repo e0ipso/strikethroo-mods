@@ -1,0 +1,20 @@
+{
+  "name": "strikethroo-claim-check",
+  "version": "0.1.0",
+  "description": "Adds one dim line under Claude's answer when it claims something is done, fixed or passing and no test or build command ran during the turn. It shows nothing else and decides nothing.",
+  "author": {
+    "name": "Mateu Aguiló Bosch"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/e0ipso/strikethroo-mods",
+  "keywords": ["strikethroo", "mods", "verification"],
+  "userConfig": {
+    "verify_patterns": {
+      "type": "string",
+      "title": "Verification commands",
+      "description": "Text that marks a Bash command as a test or build run. A command that contains any of these, ignoring case, counts.",
+      "multiple": true,
+      "default": ["test", "vitest", "jest", "pytest", "tsc", "build", "lint", "validate"]
+    }
+  }
+}

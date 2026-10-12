@@ -11,6 +11,7 @@ Strikethroo doesn't depend on this repository. This repository depends only on S
 | [`strikethroo-progress`](plugins/strikethroo-progress/) | The active plan's phase and task progress, in the band above the prompt, in a pane, and from `/strikethroo-status` |
 | [`strikethroo-review-findings`](plugins/strikethroo-review-findings/) | A pane listing the findings in a plan's `review/review.xml`, with buttons to copy `path:line` or draft a prompt about a finding |
 | [`strikethroo-scope-watch`](plugins/strikethroo-scope-watch/) | A warning when Claude edits a file outside the in-progress task's Output Artifacts. It never blocks. |
+| [`strikethroo-claim-check`](plugins/strikethroo-claim-check/) | One dim line when Claude's answer claims success and no test or build command ran that turn |
 
 ## Install
 

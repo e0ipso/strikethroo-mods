@@ -21,6 +21,11 @@
       "name": "strikethroo-scope-watch",
       "source": "./plugins/strikethroo-scope-watch",
       "description": "Warns when Claude edits a file outside the in-progress task's Output Artifacts. Warns only; never blocks."
+    },
+    {
+      "name": "strikethroo-claim-check",
+      "source": "./plugins/strikethroo-claim-check",
+      "description": "Adds one dim line when Claude's answer claims success and no test or build command ran this turn."
     }
   ]
 }

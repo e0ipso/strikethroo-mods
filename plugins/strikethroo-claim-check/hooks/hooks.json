@@ -1,0 +1,4 @@
+{
+  "description": "strikethroo-claim-check: records the Bash commands of a turn and, when the final answer claims completion and none of them was a test or build run, adds one line under the answer",
+  "modules": ["./register.ts"]
+}
