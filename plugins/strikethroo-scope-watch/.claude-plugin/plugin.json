@@ -1,6 +1,6 @@
 {
   "name": "strikethroo-scope-watch",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Warns when Claude edits a file outside the Output Artifacts of the one Strikethroo task in progress. It warns and never blocks. Reads .ai/strikethroo/ and never writes to it.",
   "author": {
     "name": "Mateu Aguiló Bosch"

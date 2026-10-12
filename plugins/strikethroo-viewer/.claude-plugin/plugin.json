@@ -1,6 +1,6 @@
 {
   "name": "strikethroo-viewer",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Opens the active Strikethroo plan in strikethroo serve: checks whether it already answers on 127.0.0.1, starts it with no shell when it doesn't, and shows a link. Never binds anything but loopback.",
   "author": {
     "name": "Mateu Aguiló Bosch"

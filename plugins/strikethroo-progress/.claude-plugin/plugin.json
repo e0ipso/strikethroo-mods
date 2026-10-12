@@ -1,6 +1,6 @@
 {
   "name": "strikethroo-progress",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Shows the active Strikethroo plan's phase and task progress: one line above the prompt, a pane with every task, and /strikethroo-status as plain text. Reads .ai/strikethroo/ and never writes to it.",
   "author": {
     "name": "Mateu Aguiló Bosch"
