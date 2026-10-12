@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # The version the plugins were tested against; see types/vendor/claude-code/README.md.
+  CLAUDE_CODE_VERSION: 2.1.296
+  CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+  DISABLE_AUTOUPDATER: '1'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # claude plugin validate and claude plugin test need no sign-in.
+      - run: npm install --global "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+      - run: npm run typecheck
+      - run: node scripts/sync-shared.ts --check
+      - run: npm run validate
+      - run: npm test
+      - run: npm run check-capabilities

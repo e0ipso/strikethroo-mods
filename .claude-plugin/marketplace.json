@@ -1,0 +1,16 @@
+{
+  "name": "strikethroo-mods",
+  "owner": {
+    "name": "Mateu Aguiló Bosch"
+  },
+  "metadata": {
+    "description": "Prototype Claude Code mods that show the state of a Strikethroo workspace. Read-only; Strikethroo's own gates decide."
+  },
+  "plugins": [
+    {
+      "name": "strikethroo-progress",
+      "source": "./plugins/strikethroo-progress",
+      "description": "Shows the active Strikethroo plan's phase and task progress above the prompt, in a pane, and through /strikethroo-status."
+    }
+  ]
+}

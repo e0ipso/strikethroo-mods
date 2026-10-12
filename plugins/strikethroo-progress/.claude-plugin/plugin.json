@@ -1,0 +1,33 @@
+{
+  "name": "strikethroo-progress",
+  "version": "0.1.0",
+  "description": "Shows the active Strikethroo plan's phase and task progress: one line above the prompt, a pane with every task, and /strikethroo-status as plain text. Reads .ai/strikethroo/ and never writes to it.",
+  "author": {
+    "name": "Mateu Aguiló Bosch"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/e0ipso/strikethroo-mods",
+  "keywords": ["strikethroo", "mods", "progress"],
+  "userConfig": {
+    "display": {
+      "type": "string",
+      "title": "Display",
+      "description": "Where progress shows: \"band\" (one line above the prompt), \"pane\", \"both\", or \"off\". /strikethroo-status works in every mode.",
+      "options": ["band", "pane", "both", "off"],
+      "default": "band"
+    },
+    "refresh_seconds": {
+      "type": "number",
+      "title": "Refresh interval",
+      "description": "Seconds between checks of the task files for changes, from 1 to 60.",
+      "min": 1,
+      "max": 60,
+      "default": 3
+    },
+    "pin_plan": {
+      "type": "string",
+      "title": "Pinned plan",
+      "description": "A plan id such as 42, or a plan directory such as 42--add-login. Leave empty to follow the active plan."
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "description": "Not a mod. claude plugin test needs a hooks module to load, so this empty one lets it run the reader's unit tests in shared/tests/.",
+  "modules": ["./register.ts"]
+}

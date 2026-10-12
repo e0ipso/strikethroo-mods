@@ -1,0 +1,22 @@
+{
+  "name": "strikethroo-mods",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Prototype Claude Code mods for Strikethroo workspaces",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "typecheck": "node scripts/run.ts typecheck",
+    "test": "node scripts/run.ts test",
+    "validate": "node scripts/run.ts validate",
+    "check-capabilities": "node scripts/check-capabilities.ts",
+    "sync": "node scripts/sync-shared.ts"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "7.0.2"
+  }
+}

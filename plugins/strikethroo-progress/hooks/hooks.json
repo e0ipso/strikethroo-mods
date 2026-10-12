@@ -1,0 +1,4 @@
+{
+  "description": "strikethroo-progress: reads the active Strikethroo plan and draws its progress in the band above the prompt and in a pane, and answers /strikethroo-status",
+  "modules": ["./register.ts"]
+}

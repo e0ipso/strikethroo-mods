@@ -1,0 +1,17 @@
+{
+  "strikethroo-progress": {
+    "hooks": ["session.start", "tool.call", "command.run", "ui.render"],
+    "calls": [
+      "$.clock.every",
+      "$.command.register",
+      "$.fs.exists",
+      "$.fs.list",
+      "$.fs.read",
+      "$.session.cwd",
+      "$.ui.invalidate",
+      "$.ui.log",
+      "$.ui.open",
+      "$.ui.resolve"
+    ]
+  }
+}
