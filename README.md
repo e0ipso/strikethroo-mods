@@ -1,87 +1,57 @@
 # strikethroo-mods
 
-A Claude Code plugin marketplace with prototype mods for [Strikethroo](https://github.com/e0ipso/strikethroo). Each mod reads the `.ai/strikethroo/` workspace in your project and shows what it finds inside Claude Code: progress above the prompt, a pane, a command.
-
-The mods inform. They never write to `.ai/strikethroo/`, approve or deny a tool call, submit a prompt, call a model, or change the system prompt. Strikethroo's compiled gates decide whether a plan, task or review passed, and nothing here claims otherwise.
-
-Strikethroo doesn't depend on this repository. This repository depends only on Strikethroo's on-disk workspace format.
+A Claude Code plugin marketplace for [Strikethroo](https://github.com/e0ipso/strikethroo) plan progress, review findings, scope warnings, and a local viewer.
 
 | Plugin | What it does |
 | --- | --- |
-| [`strikethroo-progress`](plugins/strikethroo-progress/) | The active plan's phase and task progress, in the band above the prompt, in a pane, and from `/strikethroo-status` |
-| [`strikethroo-review-findings`](plugins/strikethroo-review-findings/) | A pane listing the findings in a plan's `review/review.xml`, with buttons to copy `path:line` or draft a prompt about a finding |
-| [`strikethroo-scope-watch`](plugins/strikethroo-scope-watch/) | A warning when Claude edits a file outside the in-progress task's Output Artifacts. It never blocks. |
-| [`strikethroo-claim-check`](plugins/strikethroo-claim-check/) | One dim line when Claude's answer claims success and no test or build command ran that turn |
-| [`strikethroo-viewer`](plugins/strikethroo-viewer/) | `/strikethroo-open` and a band button that find or start `strikethroo serve` on 127.0.0.1 and link to the active plan |
+| [`strikethroo-progress`](plugins/strikethroo-progress/) | Shows phase and task progress above the prompt. `/strikethroo-status` lists tasks; an optional pane shows them alongside the conversation. |
+| [`strikethroo-review-findings`](plugins/strikethroo-review-findings/) | Shows `review/review.xml` findings in a pane. `/strikethroo-review` opens it, with buttons to copy locations or draft a prompt. |
+| [`strikethroo-scope-watch`](plugins/strikethroo-scope-watch/) | Warns about edits outside the task's Output Artifacts when exactly one task is in progress. |
+| [`strikethroo-claim-check`](plugins/strikethroo-claim-check/) | Adds a note when Claude claims completion without running a Bash command matching a verification pattern that turn. Works without Strikethroo. |
+| [`strikethroo-viewer`](plugins/strikethroo-viewer/) | `/strikethroo-open` finds or starts `strikethroo serve` on `127.0.0.1` and returns a link to the active plan. |
+
+The mods leave workspace files unchanged and provide advisory information. Progress reflects task file statuses; claim-check matches command text without checking whether commands passed. Strikethroo's own gates determine validation results.
 
 ## Install
 
-You need Claude Code 2.1.287 or later (`claude --version`). The mods were tested with 2.1.296.
+Add the marketplace, then install any plugin from the table:
 
 ```bash
 claude plugin marketplace add e0ipso/strikethroo-mods
+claude plugin install strikethroo-progress@strikethroo-mods
 ```
 
-Then, in a Claude Code session:
+Start Claude Code in your Strikethroo project. Each plugin's README covers its options and capabilities.
 
-```text
-/plugin install strikethroo-progress@strikethroo-mods
-```
-
-To try mods for one session from a clone, without installing them, repeat `--plugin-dir`:
+To try a plugin from a clone for one session:
 
 ```bash
-claude --plugin-dir ./plugins/strikethroo-progress \
-       --plugin-dir ./plugins/strikethroo-review-findings \
-       --plugin-dir ./plugins/strikethroo-scope-watch \
-       --plugin-dir ./plugins/strikethroo-claim-check \
-       --plugin-dir ./plugins/strikethroo-viewer
+claude --plugin-dir ./plugins/strikethroo-progress
 ```
 
-A mod loaded this way reads its options from `pluginConfigs["<name>@inline"]`. To try another value without editing your settings, pass it with `--settings`, for example `--settings '{"pluginConfigs":{"strikethroo-progress@inline":{"options":{"display":"both"}}}}'`.
+Repeat `--plugin-dir` to load more plugins.
 
-## Trust
+## Compatibility
 
-A mod is code that runs inside Claude Code as you, unsandboxed. It could read and write any file you can, start programs, and reach the network. Before you install one, read the capability allowlist in its README. That list is everything its hooks module hooks and calls, as `claude plugin validate` reports it, and CI fails if the code uses anything outside it. You can produce the same list yourself from a clone:
-
-```bash
-claude plugin validate ./plugins/strikethroo-progress
-```
-
-## Format coupling
-
-The mods read Strikethroo workspace schema 4, the `workspaceSchemaVersion` in `.ai/strikethroo/.init-metadata.json`. They were verified against the fixture workspace from Strikethroo `v4.1.1`, copied into [`shared/fixtures/`](shared/fixtures/). A workspace with any other schema version gets one line saying so, and then the mod shows nothing. When Strikethroo changes its schema, these mods need a new release.
+- CI tests against Claude Code **2.1.296**.
+- Workspace-based mods read `.ai/strikethroo/` schema **4**, identified by `workspaceSchemaVersion` in `.init-metadata.json`. They report unsupported schemas and skip them. Tests use [Strikethroo v4.1.1 fixtures](shared/fixtures/).
+- The viewer's default command is `npx --no-install strikethroo serve --no-open`, so Strikethroo must already be available to that command. Set `serve_command` to use another installation.
 
 ## Development
 
-Contributors need Node.js 22.18 or later, which runs `.ts` files directly, and the `claude` CLI. People who install a mod need neither: Claude Code loads the `.ts` hooks modules itself.
+Use Node.js 22.18 or later and the Claude Code CLI. Claude Code loads the TypeScript plugins directly; there is no build step.
 
 ```bash
-npm install
-npm run typecheck           # tsc -p on the root, shared/ and each plugin
-npm test                    # claude plugin test on shared/ and each plugin
-npm run validate            # claude plugin validate --strict on the marketplace and each plugin
-npm run check-capabilities  # each plugin's hooks and calls against capabilities.json
-npm run sync                # copy shared/ into the plugins
+npm ci
+npm run typecheck
+npm test
+npm run validate
+npm run check-capabilities
 ```
 
-The layout:
+Each `plugins/<name>/` directory is self-contained. Edit shared code in `shared/lib/` and test helpers in `shared/testing/`, then run `npm run sync` to update the committed copies inside each plugin. CI checks that the copies match.
 
-- `plugins/<name>/` holds one self-contained plugin per mod.
-- `shared/lib/` is the workspace reader every mod uses. A hooks module may only import files inside its own plugin, so `npm run sync` copies `shared/lib/` into each plugin's `hooks/lib/strikethroo/` and `shared/testing/` into `tests/lib/strikethroo/`. The copies are committed, because an install reads the plugin directory as it is. Edit `shared/`, never a copy. CI runs `node scripts/sync-shared.ts --check` and fails when a copy differs.
-- `shared/tests/` unit-tests the reader against the Strikethroo fixtures. `claude plugin test` needs a hooks module to load, so `shared/hooks/` holds an empty one.
-- `capabilities.json` is each plugin's allowlist. Each plugin README prints its entry, and `check-capabilities` fails if the two differ.
-- `types/vendor/claude-code/` holds the Claude Code mod type declarations the type check uses. Its README says where they came from.
-
-There is no build step. Write only TypeScript that type stripping can remove, which `erasableSyntaxOnly` in `tsconfig.json` enforces, and import relative files with their `.ts` extension. Hooks modules follow the static-analysis rules in the [create guide](https://code.claude.com/docs/en/plugins/mods/create#check-what-claude-code-reads-from-your-mod): write every `$` call in full, use string-literal event names, and use top-level `import` declarations only.
-
-CI (`.github/workflows/ci.yml`) installs Claude Code from npm at the tested version and runs all of the above. `claude plugin validate` and `claude plugin test` need no sign-in.
-
-### Commits and releases
-
-Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/). `npm install` sets up a husky `commit-msg` hook that runs commitlint with `commitlint.config.ts`, and CI lints every commit in a pull request. Besides the conventional rules, the config carries Strikethroo's `no-ai-generated` rule, so a message with a `Co-Authored-By: Claude … <noreply@anthropic.com>` trailer or a "Generated with Claude Code" line is refused.
-
-Each push to `main` runs semantic-release after the checks pass (`.releaserc.json`). `feat` makes a minor release, `fix`, `perf`, `refactor` and `revert` a patch, and a breaking change a major one; `docs`, `test`, `ci`, `build`, `style` and `chore` release nothing. A release writes the new version into every plugin's `plugin.json` (`scripts/set-version.ts`), because Claude Code caches an installed plugin by version and `/plugin update` only fetches a new one. It also updates `CHANGELOG.md`, tags `v<version>`, and creates a GitHub release. Nothing is published to npm.
+[`capabilities.json`](capabilities.json) lists each plugin's allowed hooks and API calls. `check-capabilities` checks the code and plugin READMEs against it.
 
 ## License
 
