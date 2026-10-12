@@ -32,7 +32,7 @@ Repeat `--plugin-dir` to load more plugins.
 
 - CI tests against Claude Code **2.1.296**.
 - The mods read `.ai/strikethroo/` schema **4**, identified by `workspaceSchemaVersion` in `.init-metadata.json`. They report unsupported schemas and skip them. Tests use [Strikethroo v4.1.1 fixtures](shared/fixtures/).
-- The viewer's default command is `npx --no-install strikethroo serve --no-open`, so Strikethroo must already be available to that command. Set `serve_command` to use another installation.
+- The viewer's default command is `npx --yes strikethroo@latest serve --no-open`, which downloads Strikethroo from npm on first use. Set `serve_command` to pin a version or use a local installation.
 
 ## Development
 

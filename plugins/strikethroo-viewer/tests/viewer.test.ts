@@ -61,7 +61,7 @@ const session = (on: On, answers: readonly boolean[], spawnFails = false) => {
 describe('viewer.ts', () => {
   test('builds the command and loopback URLs', async () => {
     const config = configOf({})
-    expect(serveArgv(config)).toEqual(['npx', '--no-install', 'strikethroo', 'serve', '--no-open', '--port', '4317'])
+    expect(serveArgv(config)).toEqual(['npx', '--yes', 'strikethroo@latest', 'serve', '--no-open', '--port', '4317'])
     expect(pageUrl(4317, '42--add-login')).toBe('http://127.0.0.1:4317/plans/42--add-login')
     expect(pageUrl(5000, undefined)).toBe('http://127.0.0.1:5000/')
   })
@@ -93,7 +93,7 @@ describe('register', () => {
     const { spawned } = session(on, [false, true])
     await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work/src' })
     expect((await $.command.run(OPEN)).text).toBe('Strikethroo viewer: http://127.0.0.1:4317/plans/42--add-login')
-    expect(spawned).toEqual([{ argv: ['npx', '--no-install', 'strikethroo', 'serve', '--no-open', '--port', '4317'], cwd: '/work' }])
+    expect(spawned).toEqual([{ argv: ['npx', '--yes', 'strikethroo@latest', 'serve', '--no-open', '--port', '4317'], cwd: '/work' }])
   })
 
   test('reports a server that never answers, with its output', async ($, on) => {

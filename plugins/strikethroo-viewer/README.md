@@ -21,9 +21,9 @@ What happens on open:
 
 1. It asks `http://127.0.0.1:<port>/api/plans` whether a viewer answers.
 2. If not, it splits `serve_command` on spaces, adds `--port <port>`, and starts it with `$.process.spawn` in the project directory, with no shell. It refuses a `serve_command` that contains `--host`, so the viewer never listens beyond loopback.
-3. It waits up to 5 seconds for the viewer to answer, then links to `/plans/<id>--<slug>` for the active plan: the plan with a task in progress, or else the plan whose task files changed most recently. `strikethroo-progress`'s `pin_plan` doesn't apply here.
+3. It waits up to 30 seconds for the viewer to answer, which leaves time for `npx` to download Strikethroo on first use. It then links to `/plans/<id>--<slug>` for the active plan: the plan with a task in progress, or else the plan whose task files changed most recently. `strikethroo-progress`'s `pin_plan` doesn't apply here.
 
-If the viewer doesn't answer, the command prints the end of the server's output, such as npm's "npx canceled due to missing packages".
+If the viewer doesn't answer, the command prints the end of the server's output, such as an npm error.
 
 | Hook | What it does |
 | --- | --- |
@@ -57,16 +57,15 @@ The mod runs as you, unsandboxed. This is everything its hooks module hooks and 
 ```
 <!-- /capabilities -->
 
-`$.http.fetch` only ever gets a URL built from the constant `127.0.0.1` and a port between 1024 and 65535 (`hooks/viewer.ts`). `$.process.spawn` runs `serve_command` as you, so treat that setting like any command you would type. The mod calls no viewer write route, such as archive or config.
+`$.http.fetch` only ever gets a URL built from the constant `127.0.0.1` and a port between 1024 and 65535 (`hooks/viewer.ts`). `$.process.spawn` runs `serve_command` as you, so treat that setting like any command you would type. The default downloads the latest `strikethroo` release from npm and runs it without asking; set `serve_command` to a pinned version or a local install to avoid that. The mod calls no viewer write route, such as archive or config.
 
 ## Demo
 
-Captured from a Claude Code 2.1.296 session in a project made with `npx strikethroo init --harnesses claude`:
+Captured from a Claude Code 2.1.296 session in a temporary project holding the Strikethroo `v4.1.1` fixture workspace, with plan 83 copied into `plans/` and an empty npm cache:
 
-1. Without Strikethroo installed in the project, `/strikethroo-open` printed npm's "npx canceled due to missing packages" error. The default command passes `--no-install`, so it never downloads anything.
-2. After `npm install --save-dev strikethroo@4.1.1`, `/strikethroo-open` started the viewer and printed the link.
-3. `ss -ltn` showed it listening on `127.0.0.1:4317` only, and the plan page answered 200.
-4. After the session ended, port 4317 was free again.
+1. `/strikethroo-open` downloaded Strikethroo through `npx`, started the viewer and printed the link 3.3 seconds later.
+2. `ss -ltn` showed it listening on `127.0.0.1:4317` only, and the plan page answered 200.
+3. After the session ended, port 4317 was free again.
 
 ## How it was built
 
@@ -83,7 +82,7 @@ Captured from a Claude Code 2.1.296 session in a project made with `npx striketh
 
 - Claude Code 2.1.287 or later. Tested with 2.1.296.
 - A Strikethroo workspace of schema version 4. Verified against the Strikethroo `v4.1.1` fixtures.
-- For the default command, Strikethroo installed where `npx --no-install` finds it, such as `npm install --save-dev strikethroo` in the project.
+- For the default command, `npx` and access to the npm registry.
 
 **Steps:**
 
@@ -102,12 +101,13 @@ Captured from a Claude Code 2.1.296 session in a project made with `npx striketh
 
 | Option | Default | What it does |
 | --- | --- | --- |
-| `serve_command` | `npx --no-install strikethroo serve --no-open` | The command that starts the viewer, split on spaces, no quoting. `--port` is added; `--host` is refused. |
+| `serve_command` | `npx --yes strikethroo@latest serve --no-open` | The command that starts the viewer, split on spaces, no quoting. `--port` is added; `--host` is refused. |
 | `port` | `4317` | The loopback port, from 1024 to 65535 |
 
 ## Notes / limitations
 
 - The server the mod starts lives as long as the mod: Claude Code stops it when the session ends or the mod reloads. A viewer you started yourself is reused and left alone.
+- The default runs the newest Strikethroo. If a future release stops reading schema 4 workspaces, pin a version in `serve_command`, such as `npx --yes strikethroo@4 serve --no-open`.
 - If something other than the viewer answers `/api/plans` with a 2xx on that port, the mod takes it for the viewer.
 - The workspace is found at session start. If you create one mid-session, the band button appears after a reload or a new session; `/strikethroo-open` works at once.
 - In the Desktop app a `Link` to `http://127.0.0.1` draws as plain text, because the Desktop app only makes `https:` and `http://localhost` links clickable. The command's text still has the URL.
@@ -119,7 +119,7 @@ Captured from a Claude Code 2.1.296 session in a project made with `npx striketh
 | --- | --- | --- | --- |
 | None | | | |
 
-`strikethroo` is what the default `serve_command` runs. The mod doesn't ship it.
+`strikethroo` is what the default `serve_command` runs. The mod doesn't ship it; `npx` fetches the latest release from npm.
 
 ## Third-party notices
 

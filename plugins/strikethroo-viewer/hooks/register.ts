@@ -17,7 +17,8 @@ import { apiUrl, configOf, pageUrl, serveArgv, tailOf } from './viewer.ts'
 
 const COMMAND = 'strikethroo-open'
 const WAIT_STEP_MS = 250
-const WAIT_STEPS = 20
+/** 30 seconds: long enough for npx to download Strikethroo on first use. */
+const WAIT_STEPS = 120
 
 let config: ViewerConfig = configOf({})
 let cwd: string | undefined

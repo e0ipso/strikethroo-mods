@@ -17,7 +17,7 @@
       "type": "string",
       "title": "Serve command",
       "description": "The command that starts the viewer, split on spaces and run with no shell, in the project directory. --port is added. --host is refused.",
-      "default": "npx --no-install strikethroo serve --no-open"
+      "default": "npx --yes strikethroo@latest serve --no-open"
     },
     "port": {
       "type": "number",

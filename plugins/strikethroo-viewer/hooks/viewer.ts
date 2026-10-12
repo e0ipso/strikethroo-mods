@@ -6,7 +6,7 @@
 import type { PluginOptions } from 'claude-code'
 
 export const HOST = '127.0.0.1'
-export const DEFAULT_COMMAND = 'npx --no-install strikethroo serve --no-open'
+export const DEFAULT_COMMAND = 'npx --yes strikethroo@latest serve --no-open'
 export const DEFAULT_PORT = 4317
 
 /** The plugin's `userConfig`, as plugin.json declares it, plus what was wrong with it. */
