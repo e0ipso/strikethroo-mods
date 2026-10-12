@@ -26,6 +26,11 @@
       "name": "strikethroo-claim-check",
       "source": "./plugins/strikethroo-claim-check",
       "description": "Adds one dim line when Claude's answer claims success and no test or build command ran this turn."
+    },
+    {
+      "name": "strikethroo-viewer",
+      "source": "./plugins/strikethroo-viewer",
+      "description": "Opens the active plan in strikethroo serve on 127.0.0.1, starting the server when it isn't running."
     }
   ]
 }

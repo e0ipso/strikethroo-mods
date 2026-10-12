@@ -1,0 +1,4 @@
+{
+  "description": "strikethroo-viewer: /strikethroo-open and a band button that find or start strikethroo serve on 127.0.0.1 and link to the active plan",
+  "modules": ["./register.ts"]
+}

@@ -64,5 +64,26 @@
     "calls": [
       "$.session.messages"
     ]
+  },
+  "strikethroo-viewer": {
+    "hooks": [
+      "session.start",
+      "command.run",
+      "ui.render"
+    ],
+    "calls": [
+      "$.clock.sleep",
+      "$.command.register",
+      "$.fs.exists",
+      "$.fs.list",
+      "$.fs.read",
+      "$.http.fetch",
+      "$.process.spawn",
+      "$.session.cwd",
+      "$.ui.invalidate",
+      "$.ui.log",
+      "$.ui.resolve",
+      "$.ui.toast"
+    ]
   }
 }

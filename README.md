@@ -12,6 +12,7 @@ Strikethroo doesn't depend on this repository. This repository depends only on S
 | [`strikethroo-review-findings`](plugins/strikethroo-review-findings/) | A pane listing the findings in a plan's `review/review.xml`, with buttons to copy `path:line` or draft a prompt about a finding |
 | [`strikethroo-scope-watch`](plugins/strikethroo-scope-watch/) | A warning when Claude edits a file outside the in-progress task's Output Artifacts. It never blocks. |
 | [`strikethroo-claim-check`](plugins/strikethroo-claim-check/) | One dim line when Claude's answer claims success and no test or build command ran that turn |
+| [`strikethroo-viewer`](plugins/strikethroo-viewer/) | `/strikethroo-open` and a band button that find or start `strikethroo serve` on 127.0.0.1 and link to the active plan |
 
 ## Install
 
@@ -27,11 +28,17 @@ Then, in a Claude Code session:
 /plugin install strikethroo-progress@strikethroo-mods
 ```
 
-To try a mod for one session from a clone, without installing it:
+To try mods for one session from a clone, without installing them, repeat `--plugin-dir`:
 
 ```bash
-claude --plugin-dir ./plugins/strikethroo-progress
+claude --plugin-dir ./plugins/strikethroo-progress \
+       --plugin-dir ./plugins/strikethroo-review-findings \
+       --plugin-dir ./plugins/strikethroo-scope-watch \
+       --plugin-dir ./plugins/strikethroo-claim-check \
+       --plugin-dir ./plugins/strikethroo-viewer
 ```
+
+A mod loaded this way reads its options from `pluginConfigs["<name>@inline"]`. To try another value without editing your settings, pass it with `--settings`, for example `--settings '{"pluginConfigs":{"strikethroo-progress@inline":{"options":{"display":"both"}}}}'`.
 
 ## Trust
 

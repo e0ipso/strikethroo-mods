@@ -1,0 +1,27 @@
+{
+  "name": "strikethroo-viewer",
+  "version": "0.1.0",
+  "description": "Opens the active Strikethroo plan in strikethroo serve: checks whether it already answers on 127.0.0.1, starts it with no shell when it doesn't, and shows a link. Never binds anything but loopback.",
+  "author": {
+    "name": "Mateu Aguiló Bosch"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/e0ipso/strikethroo-mods",
+  "keywords": ["strikethroo", "mods", "viewer"],
+  "userConfig": {
+    "serve_command": {
+      "type": "string",
+      "title": "Serve command",
+      "description": "The command that starts the viewer, split on spaces and run with no shell, in the project directory. --port is added. --host is refused.",
+      "default": "npx --no-install strikethroo serve --no-open"
+    },
+    "port": {
+      "type": "number",
+      "title": "Port",
+      "description": "The loopback port the viewer listens on.",
+      "min": 1024,
+      "max": 65535,
+      "default": 4317
+    }
+  }
+}
