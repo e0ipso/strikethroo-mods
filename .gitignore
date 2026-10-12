@@ -2,3 +2,5 @@ node_modules/
 # Claude Code writes version-specific mod types here when it loads a mod
 # from --plugin-dir. The type check uses types/vendor/ instead.
 **/.claude-plugin/types/
+# Per-project tokens (GITHUB_TOKEN) for push and API calls; never commit them.
+.env
