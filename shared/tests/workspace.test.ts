@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 
 import type { Plan } from '../lib/index.ts'
-import { findWorkspace, listActivePlans, pickActivePlan, planSignature } from '../lib/index.ts'
+import { findWorkspace, listActivePlans, listReviewFiles, pickActivePlan, planSignature } from '../lib/index.ts'
 import { memoryFs } from '../testing/memory-fs.ts'
 import { FIXTURE_FILES } from './fixture-files.ts'
 
@@ -85,6 +85,22 @@ describe('planSignature', () => {
     expect(await planSignature(fs, ROOT)).toBe(before)
     fs.mtimes.set(`${ACTIVE}/tasks/04--integration-tests.md`, 5)
     expect(await planSignature(fs, ROOT)).not.toBe(before)
+  })
+})
+
+describe('listReviewFiles', () => {
+  test('finds review.xml under active plans only, newest first', async () => {
+    const fs = memoryFs(projectFiles())
+    expect(await listReviewFiles(fs, ROOT)).toEqual([])
+    fs.files.set(`${ACTIVE}/review/review.xml`, FIXTURE_FILES['review.xml'] ?? '')
+    fs.files.set(`${ACTIVE}/review/base-commit.json`, '{}')
+    fs.files.set(`${ROOT}/plans/90--newer/review/review.xml`, '<review/>')
+    fs.files.set(`${ROOT}/archive/38--fix-jekyll-link-baseurl/review/review.xml`, '<review/>')
+    fs.mtimes.set(`${ROOT}/plans/90--newer/review/review.xml`, 9)
+    expect(await listReviewFiles(fs, ROOT)).toEqual([
+      { plan: '90--newer', path: `${ROOT}/plans/90--newer/review/review.xml`, mtimeMs: 9 },
+      { plan: '83--workspace-data-layer', path: `${ACTIVE}/review/review.xml`, mtimeMs: 1 },
+    ])
   })
 })
 

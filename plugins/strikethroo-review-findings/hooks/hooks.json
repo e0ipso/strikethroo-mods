@@ -1,0 +1,4 @@
+{
+  "description": "strikethroo-review-findings: watches plans/*/review/review.xml and lists its findings in a pane, with copy and draft-prompt buttons",
+  "modules": ["./register.ts"]
+}

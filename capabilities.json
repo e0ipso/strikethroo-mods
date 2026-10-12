@@ -1,6 +1,11 @@
 {
   "strikethroo-progress": {
-    "hooks": ["session.start", "tool.call", "command.run", "ui.render"],
+    "hooks": [
+      "session.start",
+      "tool.call",
+      "command.run",
+      "ui.render"
+    ],
     "calls": [
       "$.clock.every",
       "$.command.register",
@@ -12,6 +17,29 @@
       "$.ui.log",
       "$.ui.open",
       "$.ui.resolve"
+    ]
+  },
+  "strikethroo-review-findings": {
+    "hooks": [
+      "session.start",
+      "tool.call",
+      "command.run",
+      "ui.render"
+    ],
+    "calls": [
+      "$.clock.every",
+      "$.command.register",
+      "$.fs.exists",
+      "$.fs.list",
+      "$.fs.read",
+      "$.prompt.fill",
+      "$.session.cwd",
+      "$.ui.copy",
+      "$.ui.invalidate",
+      "$.ui.log",
+      "$.ui.open",
+      "$.ui.resolve",
+      "$.ui.toast"
     ]
   }
 }

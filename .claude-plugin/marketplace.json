@@ -11,6 +11,11 @@
       "name": "strikethroo-progress",
       "source": "./plugins/strikethroo-progress",
       "description": "Shows the active Strikethroo plan's phase and task progress above the prompt, in a pane, and through /strikethroo-status."
+    },
+    {
+      "name": "strikethroo-review-findings",
+      "source": "./plugins/strikethroo-review-findings",
+      "description": "A pane listing the findings in a plan's review/review.xml, with buttons to copy path:line or draft a prompt about a finding."
     }
   ]
 }
