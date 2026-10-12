@@ -16,6 +16,11 @@
       "name": "strikethroo-review-findings",
       "source": "./plugins/strikethroo-review-findings",
       "description": "A pane listing the findings in a plan's review/review.xml, with buttons to copy path:line or draft a prompt about a finding."
+    },
+    {
+      "name": "strikethroo-scope-watch",
+      "source": "./plugins/strikethroo-scope-watch",
+      "description": "Warns when Claude edits a file outside the in-progress task's Output Artifacts. Warns only; never blocks."
     }
   ]
 }

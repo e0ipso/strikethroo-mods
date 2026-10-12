@@ -41,5 +41,19 @@
       "$.ui.resolve",
       "$.ui.toast"
     ]
+  },
+  "strikethroo-scope-watch": {
+    "hooks": [
+      "session.start",
+      "tool.call"
+    ],
+    "calls": [
+      "$.fs.exists",
+      "$.fs.list",
+      "$.fs.read",
+      "$.session.cwd",
+      "$.ui.log",
+      "$.ui.toast"
+    ]
   }
 }

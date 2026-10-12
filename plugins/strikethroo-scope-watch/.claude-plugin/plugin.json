@@ -1,0 +1,20 @@
+{
+  "name": "strikethroo-scope-watch",
+  "version": "0.1.0",
+  "description": "Warns when Claude edits a file outside the Output Artifacts of the one Strikethroo task in progress. It warns and never blocks. Reads .ai/strikethroo/ and never writes to it.",
+  "author": {
+    "name": "Mateu Aguiló Bosch"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/e0ipso/strikethroo-mods",
+  "keywords": ["strikethroo", "mods", "scope"],
+  "userConfig": {
+    "mode": {
+      "type": "string",
+      "title": "Warning style",
+      "description": "\"toast\" shows a notification for a few seconds; \"notice\" adds a dim line to the transcript, which Claude doesn't read; \"off\" turns the mod off.",
+      "options": ["toast", "notice", "off"],
+      "default": "toast"
+    }
+  }
+}
