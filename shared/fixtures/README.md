@@ -4,10 +4,4 @@
 
 It is a bare workspace: `.init-metadata.json`, `config/`, `plans/` and `archive/` sit at its top level with no `.ai/strikethroo/` above them. Its `plans/` directory is empty, so tests that need an active plan mount it under a project and copy an archived plan into `plans/`.
 
-`review.xml` is written for this repository. It validates against the fixture's own schema:
-
-```bash
-xmllint --noout --nonet --schema shared/fixtures/serve-workspace/config/schemas/self-review-v2.xsd shared/fixtures/review.xml
-```
-
-The mods' test runner can only import code files, so `node scripts/sync-shared.ts` turns `review.xml`, `serve-workspace/.init-metadata.json` and `serve-workspace/archive/` into `shared/tests/fixture-files.ts`. CI fails when that file is out of date.
+The mods' test runner can only import code files, so `node scripts/sync-shared.ts` turns `serve-workspace/.init-metadata.json` and `serve-workspace/archive/` into `shared/tests/fixture-files.ts`. CI fails when that file is out of date.

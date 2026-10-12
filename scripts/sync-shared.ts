@@ -28,7 +28,7 @@ const filesUnder = (dir: string): string[] =>
 
 const FIXTURES = join(ROOT, 'shared/fixtures')
 const isTestFixture = (path: string): boolean =>
-  path === 'review.xml' || path === 'serve-workspace/.init-metadata.json' || path.startsWith('serve-workspace/archive/')
+  path === 'serve-workspace/.init-metadata.json' || path.startsWith('serve-workspace/archive/')
 
 const fixtureModule = (): string => {
   const entries = filesUnder(FIXTURES)

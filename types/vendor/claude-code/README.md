@@ -12,7 +12,7 @@ The type check (`npm run typecheck`) resolves `claude-code`, `claude-code/testin
 
 These are the files Claude Code **2.1.296** wrote into `.claude-plugin/types/` when it loaded a mod with `claude --plugin-dir` on 2026-10-12. Their first line names that version. This is also the version the plugins were tested against.
 
-The brief for this repository asked for a pinned copy of `mods/types/claude-code.d.ts` from [anthropics/claude-code](https://github.com/anthropics/claude-code). At commit `3deb873687379f0c199a69fdaccc65f0865f7a29` (2026-10-11) that file was written by Claude Code 2.1.277, ten releases before the first one that loads mods by default. It lacks `$.ui.copy`, which `strikethroo-review-findings` calls, and `PluginState`, which typed `$.state` needs. The mods documentation says to trust the generated copy when the two disagree, so the generated copy is vendored here and the upstream commit is recorded for reference.
+The brief for this repository asked for a pinned copy of `mods/types/claude-code.d.ts` from [anthropics/claude-code](https://github.com/anthropics/claude-code). At commit `3deb873687379f0c199a69fdaccc65f0865f7a29` (2026-10-11) that file was written by Claude Code 2.1.277, ten releases before the first one that loads mods by default. It lacks `$.ui.copy`, which the since-removed `strikethroo-review-findings` called, and `PluginState`, which typed `$.state` needs. The mods documentation says to trust the generated copy when the two disagree, so the generated copy is vendored here and the upstream commit is recorded for reference.
 
 SHA-256 of the vendored files:
 

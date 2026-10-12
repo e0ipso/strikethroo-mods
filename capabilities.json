@@ -19,52 +19,6 @@
       "$.ui.resolve"
     ]
   },
-  "strikethroo-review-findings": {
-    "hooks": [
-      "session.start",
-      "tool.call",
-      "command.run",
-      "ui.render"
-    ],
-    "calls": [
-      "$.clock.every",
-      "$.command.register",
-      "$.fs.exists",
-      "$.fs.list",
-      "$.fs.read",
-      "$.prompt.fill",
-      "$.session.cwd",
-      "$.ui.copy",
-      "$.ui.invalidate",
-      "$.ui.log",
-      "$.ui.open",
-      "$.ui.resolve",
-      "$.ui.toast"
-    ]
-  },
-  "strikethroo-scope-watch": {
-    "hooks": [
-      "session.start",
-      "tool.call"
-    ],
-    "calls": [
-      "$.fs.exists",
-      "$.fs.list",
-      "$.fs.read",
-      "$.session.cwd",
-      "$.ui.log",
-      "$.ui.toast"
-    ]
-  },
-  "strikethroo-claim-check": {
-    "hooks": [
-      "tool.call",
-      "turn.complete"
-    ],
-    "calls": [
-      "$.session.messages"
-    ]
-  },
   "strikethroo-viewer": {
     "hooks": [
       "session.start",

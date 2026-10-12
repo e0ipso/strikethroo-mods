@@ -176,20 +176,6 @@ export const planSignature = async (fs: WorkspaceFs, root: string): Promise<stri
   return parts.join('\n')
 }
 
-export type ReviewFile = { plan: string; path: string; mtimeMs: number }
-
-/** Each active plan's `review/review.xml`, newest first. Listings only; nothing is read. */
-export const listReviewFiles = async (fs: WorkspaceFs, root: string): Promise<ReviewFile[]> => {
-  const plansDir = join(root, 'plans')
-  const found: ReviewFile[] = []
-  for (const { name } of await planDirsOf(fs, plansDir)) {
-    const dir = join(join(plansDir, name), 'review')
-    const entry = (await listOr(fs, dir)).find(item => item.kind === 'file' && item.name === 'review.xml')
-    if (entry !== undefined) found.push({ plan: name, path: join(dir, entry.name), mtimeMs: entry.mtimeMs })
-  }
-  return found.sort((a, b) => b.mtimeMs - a.mtimeMs)
-}
-
 /**
  * The plan to show: the pinned one when it exists, else the plan with an
  * `in-progress` task, else the plan whose task files changed most recently.

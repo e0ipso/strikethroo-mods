@@ -135,38 +135,3 @@ export const parseBlueprint = (planText: string): BlueprintPhase[] | undefined =
 /** The first `# ` heading after the frontmatter, or undefined. */
 export const parseTitle = (text: string): string | undefined =>
   /^#[ \t]+(.+?)[ \t]*$/m.exec(text.replace(FRONTMATTER_RE, ''))?.[1]
-
-/**
- * The paths in backticks under `## Output Artifacts`. A span counts as a path
- * when it has no spaces and holds a `/` or ends in an extension, so `Task` and
- * `phaseCount` are skipped and `AGENTS.md` and `src/serve/` are kept.
- */
-export const parseOutputArtifacts = (taskText: string): string[] => {
-  const section = sectionOf(taskText, /^##[ \t]+Output Artifacts[ \t]*$/m)
-  if (section === undefined) return []
-  const paths: string[] = []
-  for (const match of section.matchAll(/`([^`\n]+)`/g)) {
-    const span = (match[1] ?? '').trim().replace(/^\.\//, '')
-    const isPath = !/\s/.test(span) && !span.includes('://') && (span.includes('/') || /\.\w+$/.test(span))
-    if (isPath && !paths.includes(span)) paths.push(span)
-  }
-  return paths
-}
-
-/**
- * Whether a project-relative path is one of the artifacts: the same path, a
- * path under an artifact directory, or a match for a `*` or `**` glob.
- */
-export const matchesArtifact = (path: string, artifacts: readonly string[]): boolean =>
-  artifacts.some(artifact => {
-    if (artifact.includes('*')) {
-      const source = artifact
-        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-        .replace(/\*\*\/?/g, '\u0000')
-        .replace(/\*/g, '[^/]*')
-        .replace(/\u0000/g, '.*')
-      return new RegExp(`^${source}$`).test(path)
-    }
-    const directory = artifact.endsWith('/') ? artifact : artifact + '/'
-    return path === artifact || path.startsWith(directory)
-  })

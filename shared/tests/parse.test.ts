@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'claude-code/testing'
 
-import { matchesArtifact, parseBlueprint, parseOutputArtifacts, parseTaskFrontmatter, parseTitle } from '../lib/index.ts'
+import { parseBlueprint, parseTaskFrontmatter, parseTitle } from '../lib/index.ts'
 import { FIXTURE_FILES } from './fixture-files.ts'
 
 const PLAN_83 = 'serve-workspace/archive/83--workspace-data-layer'
@@ -54,31 +54,6 @@ describe('parseBlueprint', () => {
   test('is undefined without the section or its phases', async () => {
     expect(parseBlueprint('## Plan\n### Phase 1: x\n')).toBeUndefined()
     expect(parseBlueprint('## Execution Blueprint\nnothing yet\n')).toBeUndefined()
-  })
-})
-
-describe('parseOutputArtifacts', () => {
-  test('keeps paths and skips identifiers in backticks', async () => {
-    expect(parseOutputArtifacts(fixture(`${PLAN_83}/tasks/03--model-assembly-and-typed-api.md`))).toEqual(['src/serve/workspace-model.ts'])
-    expect(parseOutputArtifacts(fixture(`${PLAN_83}/tasks/05--agents-md-serve-note.md`))).toEqual(['AGENTS.md'])
-    expect(parseOutputArtifacts(fixture(`${PLAN_83}/tasks/02--task-scan-state-and-phase-inference.md`))).toEqual([])
-  })
-
-  test('reads only its own section', async () => {
-    const task = '## Objective\n`src/a.ts`\n## Output Artifacts\n- `./src/b.ts` and `docs/`\n### Detail\n- `c.md`\n## Notes\n`d.ts`\n'
-    expect(parseOutputArtifacts(task)).toEqual(['src/b.ts', 'docs/', 'c.md'])
-  })
-})
-
-describe('matchesArtifact', () => {
-  test('matches files, directories and globs', async () => {
-    const artifacts = ['src/a.ts', 'docs/', 'lib', 'test/**/*.test.ts']
-    expect(matchesArtifact('src/a.ts', artifacts)).toBe(true)
-    expect(matchesArtifact('docs/x/y.md', artifacts)).toBe(true)
-    expect(matchesArtifact('lib/z.ts', artifacts)).toBe(true)
-    expect(matchesArtifact('test/unit/x.test.ts', artifacts)).toBe(true)
-    expect(matchesArtifact('src/a.tsx', artifacts)).toBe(false)
-    expect(matchesArtifact('library/z.ts', artifacts)).toBe(false)
   })
 })
 

@@ -1,4 +1,0 @@
-{
-  "description": "strikethroo-scope-watch: a tool.call hook on Write, Edit, MultiEdit and NotebookEdit that warns about edits outside the in-progress task's Output Artifacts and always lets the call through",
-  "modules": ["./register.ts"]
-}
