@@ -4,11 +4,12 @@
  *
  * It asks http://127.0.0.1:<port>/api/plans whether a viewer already answers,
  * and if not, spawns serve_command with --port, no shell, in the project
- * directory, never with --host. The child lives as long as the module: Claude
- * Code stops it when the session ends or the mod reloads. Read-only on
+ * directory, never with --host. The child lives until the band's stop button
+ * ends it, or Claude Code stops it when the session ends or the mod reloads.
+ * A viewer the mod didn't start is reused and never stopped. Read-only on
  * .ai/strikethroo/; serve's own write routes are not called.
  */
-import type { EngineInterface, On, PluginOptions } from 'claude-code'
+import type { EngineInterface, HookStream, On, PluginOptions, ProcessSpawnChunk, ProcessSpawnResult } from 'claude-code'
 
 import type { WorkspaceFs, WorkspaceLookup } from './lib/strikethroo/index.ts'
 import { findWorkspace, listActivePlans, pickActivePlan } from './lib/strikethroo/index.ts'
@@ -25,7 +26,8 @@ let cwd: string | undefined
 let lookup: WorkspaceLookup = { kind: 'none' }
 /** The page last opened, shown as a link in the band. */
 let url: string | undefined
-let isChildRunning = false
+/** The server this mod started, while it runs. Closing the stream kills it. */
+let child: HookStream<ProcessSpawnChunk, ProcessSpawnResult> | undefined
 let childOutput = ''
 
 const fsOf = ($: EngineInterface): WorkspaceFs => ({
@@ -43,22 +45,34 @@ async function isServing($: EngineInterface): Promise<boolean> {
   }
 }
 
-/** Starts serve_command for the session's life, keeping the end of its output. */
+/** Starts serve_command until it is stopped or the session ends, keeping the end of its output. */
 function startServer($: EngineInterface, project: string): void {
-  isChildRunning = true
+  const stream = $.process.spawn({ argv: serveArgv(config), cwd: project })
+  child = stream
   childOutput = ''
   void (async () => {
     try {
-      for await (const chunk of $.process.spawn({ argv: serveArgv(config), cwd: project })) {
-        childOutput = (childOutput + chunk.text).slice(-4000)
-      }
+      for await (const chunk of stream) childOutput = (childOutput + chunk.text).slice(-4000)
     } catch (error) {
       childOutput += `\n${String(error)}`
     }
-    isChildRunning = false
+    if (child !== stream) return
+    child = undefined
     url = undefined
     $.ui.invalidate('ui.render')
   })()
+}
+
+/** Kills the server this mod started, and waits for the port to go quiet. */
+async function stopServer($: EngineInterface): Promise<string> {
+  const stream = child
+  if (stream === undefined) return 'No viewer started by this session is running.'
+  child = undefined
+  url = undefined
+  $.ui.invalidate('ui.render')
+  void stream.return({ code: null, signal: 'SIGTERM' }).catch(() => undefined)
+  for (let step = 0; step < WAIT_STEPS && (await isServing($)); step++) await $.clock.sleep(WAIT_STEP_MS)
+  return (await isServing($)) ? `Stopped the viewer, but port ${config.port} still answers.` : 'Strikethroo viewer stopped.'
 }
 
 /** Finds or starts the viewer and returns the line to show. */
@@ -69,8 +83,8 @@ async function openViewer($: EngineInterface): Promise<string> {
   if (config.problem !== undefined) return config.problem
 
   if (!(await isServing($))) {
-    if (!isChildRunning) startServer($, lookup.project)
-    for (let step = 0; step < WAIT_STEPS && isChildRunning && !(await isServing($)); step++) await $.clock.sleep(WAIT_STEP_MS)
+    if (child === undefined) startServer($, lookup.project)
+    for (let step = 0; step < WAIT_STEPS && child !== undefined && !(await isServing($)); step++) await $.clock.sleep(WAIT_STEP_MS)
     if (!(await isServing($))) {
       const tail = tailOf(childOutput)
       return `strikethroo serve did not answer on port ${config.port}${tail === '' ? '.' : `:\n${tail}`}`
@@ -103,13 +117,15 @@ export function register(on: On, options: PluginOptions): void {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     if (lookup.kind !== 'found' || e.props.hasSurvey) return next(e)
     const { Box, Button, Link } = $.ui.resolve(e)
-    const button = Button({
+    const open = Button({
       key: 'open-viewer',
       label: url === undefined ? 'Open in Strikethroo viewer' : 'Reopen viewer',
       plain: true,
       onPress: async () => $.ui.toast(await openViewer($)),
     })
-    const row = Box({ flexDirection: 'row', columnGap: 2, children: url === undefined ? [button] : [button, Link({ href: url, label: url })] })
+    const stop = Button({ key: 'stop-viewer', label: 'Stop viewer', plain: true, onPress: async () => $.ui.toast(await stopServer($)) })
+    const children = [open, ...(child === undefined ? [] : [stop]), ...(url === undefined ? [] : [Link({ href: url, label: url })])]
+    const row = Box({ flexDirection: 'row', columnGap: 2, children })
     return Box({ flexDirection: 'column', children: [row, await next(e)] })
   })
 }

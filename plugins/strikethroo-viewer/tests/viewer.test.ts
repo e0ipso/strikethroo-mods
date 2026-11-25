@@ -26,9 +26,10 @@ const files = {
 
 /**
  * Stubs the workspace, the clock and the network. `answers` says, call by
- * call, whether the viewer answers; the last one repeats.
+ * call, whether the viewer answers; the last one repeats. `child` says whether
+ * the spawned server exits at once, fails, or runs until it is killed.
  */
-const session = (on: On, answers: readonly boolean[], spawnFails = false) => {
+const session = (on: On, answers: readonly boolean[], child: 'exits' | 'fails' | 'runs' = 'exits') => {
   const fetched: string[] = []
   const spawned: { argv: readonly string[]; cwd: string | undefined }[] = []
   const toasts: string[] = []
@@ -43,9 +44,13 @@ const session = (on: On, answers: readonly boolean[], spawnFails = false) => {
   })
   on('process.spawn', async function* ($, e) {
     spawned.push({ argv: e.argv, cwd: e.cwd })
-    if (spawnFails) {
+    if (child === 'fails') {
       yield { stream: 'stderr' as const, text: 'npm error could not determine executable to run\n' }
       return { value: { code: 1, signal: null } }
+    }
+    if (child === 'runs') {
+      yield { stream: 'stdout' as const, text: 'Serving http://127.0.0.1:4317\n' }
+      await new Promise(() => undefined)
     }
     yield { stream: 'stdout' as const, text: 'Strikethroo viewer at http://127.0.0.1:4317\n' }
     return { value: { code: 0, signal: null } }
@@ -61,7 +66,7 @@ const session = (on: On, answers: readonly boolean[], spawnFails = false) => {
 describe('viewer.ts', () => {
   test('builds the command and loopback URLs', async () => {
     const config = configOf({})
-    expect(serveArgv(config)).toEqual(['npx', '--yes', 'strikethroo@latest', 'serve', '--no-open', '--port', '4317'])
+    expect(serveArgv(config)).toEqual(['npx', '--yes', 'strikethroo@latest', 'serve', '--port', '4317'])
     expect(pageUrl(4317, '42--add-login')).toBe('http://127.0.0.1:4317/plans/42--add-login')
     expect(pageUrl(5000, undefined)).toBe('http://127.0.0.1:5000/')
   })
@@ -93,11 +98,11 @@ describe('register', () => {
     const { spawned } = session(on, [false, true])
     await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work/src' })
     expect((await $.command.run(OPEN)).text).toBe('Strikethroo viewer: http://127.0.0.1:4317/plans/42--add-login')
-    expect(spawned).toEqual([{ argv: ['npx', '--yes', 'strikethroo@latest', 'serve', '--no-open', '--port', '4317'], cwd: '/work' }])
+    expect(spawned).toEqual([{ argv: ['npx', '--yes', 'strikethroo@latest', 'serve', '--port', '4317'], cwd: '/work' }])
   })
 
   test('reports a server that never answers, with its output', async ($, on) => {
-    session(on, [false], true)
+    session(on, [false], 'fails')
     await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
     const { text } = await $.command.run(OPEN)
     expect(text).toContain('strikethroo serve did not answer on port 4317')
@@ -117,5 +122,36 @@ describe('register', () => {
     const band = await $.ui.mount(BAND)
     await band.press({ key: 'open-viewer' })
     expect(toasts).toEqual(['Strikethroo viewer: http://127.0.0.1:4317/plans/42--add-login'])
+  })
+
+  // The test kit doesn't end a stub's stream on return(), so the kill itself
+  // was checked in a live session; see the README's demo.
+  test('the stop button stops the server the mod started', async ($, on) => {
+    const { toasts } = session(on, [false, true, true, false], 'runs')
+    await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
+    await $.command.run(OPEN)
+    const band = await $.ui.mount(BAND)
+    await band.press({ key: 'stop-viewer' })
+    expect(toasts).toEqual(['Strikethroo viewer stopped.'])
+    expect(await band.find({ key: 'stop-viewer' })).toBeUndefined()
+    expect(await band.find({ type: 'Link' })).toBeUndefined()
+  })
+
+  test('says so when the port still answers after a stop', async ($, on) => {
+    const { toasts } = session(on, [false, true], 'runs')
+    await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
+    await $.command.run(OPEN)
+    const band = await $.ui.mount(BAND)
+    await band.press({ key: 'stop-viewer' })
+    expect(toasts).toEqual(['Stopped the viewer, but port 4317 still answers.'])
+  })
+
+  test('offers no stop button for a viewer it did not start', async ($, on) => {
+    session(on, [true])
+    await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
+    await $.command.run(OPEN)
+    const band = await $.ui.mount(BAND)
+    expect(await band.find({ key: 'open-viewer' })).toBeDefined()
+    expect(await band.find({ key: 'stop-viewer' })).toBeUndefined()
   })
 })

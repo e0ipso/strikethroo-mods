@@ -1,6 +1,6 @@
 # strikethroo-viewer
 
-A Claude Code mod that opens the active Strikethroo plan in `strikethroo serve`, Strikethroo's local web viewer. `/strikethroo-open` or a button above the prompt checks whether a viewer already answers on 127.0.0.1, starts one if not, and shows a link to the plan.
+A Claude Code mod that opens the active Strikethroo plan in `strikethroo serve`, Strikethroo's local web viewer. `/strikethroo-open` or a button above the prompt checks whether a viewer already answers on 127.0.0.1, starts one if not, and shows a link to the plan. A second button stops the viewer the mod started.
 
 ## What this shows
 
@@ -14,14 +14,17 @@ After `/strikethroo-open` or a press of that button:
 
 ```text
 ⎿  strikethroo-viewer: Strikethroo viewer: http://127.0.0.1:4317/plans/83--workspace-data-layer
-Reopen viewer  http://127.0.0.1:4317/plans/83--workspace-data-layer
+Reopen viewer  Stop viewer  http://127.0.0.1:4317/plans/83--workspace-data-layer
 ```
+
+`Stop viewer` shows only while a server the mod started is running. Pressing it ends that process and the band goes back to `Open in Strikethroo viewer`.
 
 What happens on open:
 
 1. It asks `http://127.0.0.1:<port>/api/plans` whether a viewer answers.
 2. If not, it splits `serve_command` on spaces, adds `--port <port>`, and starts it with `$.process.spawn` in the project directory, with no shell. It refuses a `serve_command` that contains `--host`, so the viewer never listens beyond loopback.
-3. It waits up to 30 seconds for the viewer to answer, which leaves time for `npx` to download Strikethroo on first use. It then links to `/plans/<id>--<slug>` for the active plan: the plan with a task in progress, or else the plan whose task files changed most recently. `strikethroo-progress`'s `pin_plan` doesn't apply here.
+3. `strikethroo serve` opens the page in your browser as it starts. A viewer that was already running opens nothing.
+4. It waits up to 30 seconds for the viewer to answer, which leaves time for `npx` to download Strikethroo on first use. It then links to `/plans/<id>--<slug>` for the active plan: the plan with a task in progress, or else the plan whose task files changed most recently. `strikethroo-progress`'s `pin_plan` doesn't apply here.
 
 If the viewer doesn't answer, the command prints the end of the server's output, such as an npm error.
 
@@ -29,7 +32,7 @@ If the viewer doesn't answer, the command prints the end of the server's output,
 | --- | --- |
 | `session.start` | Finds the workspace and registers `/strikethroo-open` |
 | `command.run` on `strikethroo-open` | Finds or starts the viewer, and returns the link |
-| `ui.render` on `AbovePrompt` | Draws the button, and the link once there is one |
+| `ui.render` on `AbovePrompt` | Draws the open button, the stop button while its server runs, and the link once there is one |
 
 ## Capabilities
 
@@ -67,6 +70,8 @@ Captured from a Claude Code 2.1.296 session in a temporary project holding the S
 2. `ss -ltn` showed it listening on `127.0.0.1:4317` only, and the plan page answered 200.
 3. After the session ended, port 4317 was free again.
 
+A second session, on port 4399 because another session's viewer held 4317, checked the stop button. `strikethroo serve` opened Firefox through `xdg-open`. A click on `Stop viewer` toasted "Strikethroo viewer stopped.", freed the port, and ended `npm exec`, its shell and the `strikethroo` node process. `/strikethroo-open` then started a new server.
+
 ## How it was built
 
 - **Model:** Claude Opus 5.5 in Claude Code.
@@ -75,6 +80,7 @@ Captured from a Claude Code 2.1.296 session in a temporary project holding the S
 - **Iterations:**
   - In the first session the band button never appeared. `session.start` found the workspace but didn't ask for a redraw, and `$.ui.invalidate` only redraws the calling mod's own drawings. It now calls `$.ui.invalidate` once the workspace is found.
   - The test kit skips a `process.spawn` stub that throws, so the failure test makes the stub write to stderr and exit 1, as npx does.
+  - Closing the stream in the test kit doesn't end a stub that is waiting, so the stop tests check the toast and the band, and the kill was checked in a live session.
 
 ## Run it
 
@@ -101,13 +107,14 @@ Captured from a Claude Code 2.1.296 session in a temporary project holding the S
 
 | Option | Default | What it does |
 | --- | --- | --- |
-| `serve_command` | `npx --yes strikethroo@latest serve --no-open` | The command that starts the viewer, split on spaces, no quoting. `--port` is added; `--host` is refused. |
+| `serve_command` | `npx --yes strikethroo@latest serve` | The command that starts the viewer, split on spaces, no quoting. `--port` is added; `--host` is refused. |
 | `port` | `4317` | The loopback port, from 1024 to 65535 |
 
 ## Notes / limitations
 
-- The server the mod starts lives as long as the mod: Claude Code stops it when the session ends or the mod reloads. A viewer you started yourself is reused and left alone.
-- The default runs the newest Strikethroo. If a future release stops reading schema 4 workspaces, pin a version in `serve_command`, such as `npx --yes strikethroo@4 serve --no-open`.
+- The server the mod starts runs until you press `Stop viewer`, or until Claude Code stops it when the session ends or the mod reloads. A viewer you or another session started is reused and has no stop button.
+- The default lets `strikethroo serve` open a browser. Add `--no-open` to `serve_command` to stop that, for example on a machine with no screen.
+- The default runs the newest Strikethroo. If a future release stops reading schema 4 workspaces, pin a version in `serve_command`, such as `npx --yes strikethroo@4 serve`.
 - If something other than the viewer answers `/api/plans` with a 2xx on that port, the mod takes it for the viewer.
 - The workspace is found at session start. If you create one mid-session, the band button appears after a reload or a new session; `/strikethroo-open` works at once.
 - In the Desktop app a `Link` to `http://127.0.0.1` draws as plain text, because the Desktop app only makes `https:` and `http://localhost` links clickable. The command's text still has the URL.
