@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/e0ipso/strikethroo-mods/compare/v1.0.0...v1.0.1) (2026-11-25)
+
+### Bug Fixes
+
+* misc changes ([e707b08](https://github.com/e0ipso/strikethroo-mods/commit/e707b08012ac2b8aa9324640c99547f4c2e60072))
+
 ## 1.0.0 (2026-10-12)
 
 ### Features
