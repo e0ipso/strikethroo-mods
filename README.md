@@ -16,6 +16,7 @@ Add the marketplace, then install any plugin from the table:
 ```bash
 claude plugin marketplace add e0ipso/strikethroo-mods
 claude plugin install strikethroo-progress@strikethroo-mods
+claude plugin install strikethroo-viewer@strikethroo-mods
 ```
 
 Start Claude Code in your Strikethroo project. Each plugin's README covers its options and capabilities.
